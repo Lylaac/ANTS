@@ -1,0 +1,272 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using Godot;
+
+public class MarchingSquares
+{
+    // set the amount of columns of points we want and the amount of rows
+    static int width = 50;
+    static int height = 50;
+
+    // initialise the points array for interpolation
+    int[,] points = new int[height,width];
+
+    // verts and uvs are used by the mesh to figure out where to draw corners and in what order to connect them
+    public List<Vector3> verts = [];
+    public List<Vector2> uvs = [];
+
+    // this gets the resolution of the screen and then finds out what to multiply our numbers by to stretch the mesh to fill the screen
+    static Vector2I screen_size = DisplayServer.WindowGetSize();
+    static int heightMult = screen_size[1] / (height - (int)(0.1*height));
+    static int widthMult = screen_size[0] / (width - (int)(0.1 * width));
+
+    
+
+    public MarchingSquares()
+    {
+        generateField();
+        generateVertexes();
+    }
+
+    // This function generates the values of all of the points that will be used for interpolation
+    private void generateField()
+    {
+        //Using the current millisecond as the seed to ensure different results each time
+        Random rnd = new Random(DateTime.Now.Millisecond);
+
+        // Here we set a random height for the floor that is between 5% less than and 5% more than the center
+        int floorHeight = rnd.Next((int)(height / 2 - (height * 0.05)), (int)(height / 2 + (height * 0.05)));
+
+        // for every point, if it is above the height of the floor, then set it to 10 (the max value)
+        // if it is the floor height, set it between 9 and 0, showing a distance to a border between ground and air
+        // if it is one below the height of the floor, set it between -1 and -9, showing it is underground and close to a border
+        // if it is any more than one below the height of the floor, set it to -10, showing no distance to a border, and underground
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (y < floorHeight)
+                {
+                    points[y,x] = 10;
+                }
+                else if (y == floorHeight)
+                {
+                    points[y,x] = rnd.Next(0,10);
+                }
+                else if (y == floorHeight+1)
+                {
+                    points[y,x] = rnd.Next(-9,0);
+                }
+                else
+                {
+                    points[y,x] = -10;
+                }
+            }
+        }
+    }
+
+    // this generates the actual vertex list which we then feed into the mesh
+    private void generateVertexes()
+    {
+        for (int y = 0; y < height-1; y++)
+        {
+            for (int x = 0; x < width-1; x++)
+            {
+                // each square has 4 of our points as "corners"
+                int topLeft = points[y,x];          int topRight = points[y,x+1];
+                int bottomLeft = points[y+1,x];     int bottomRight = points[y+1,x+1];
+
+                // this denotes where each of the corners are on the screen
+                int[,] cornerValues = {
+                    {x*widthMult,y*heightMult}, 
+                    {(x+1)*widthMult,y*heightMult}, 
+                    {x*widthMult,(y+1)*heightMult}, 
+                    {(x+1)*widthMult,(y+1)*heightMult}
+                    };
+                
+                // these denote if each corner is underground or overground
+                bool topLeftUnder = topLeft < 0;        bool topRightUnder = topRight < 0;
+                bool bottomLeftUnder = bottomLeft < 0;  bool bottomRightUnder = bottomRight < 0;
+
+                bool[] underPointsBools = [topLeftUnder, topRightUnder, bottomLeftUnder, bottomRightUnder];
+
+                // this counts how many points are below the ground
+                int underPointCount = underPointsBools.Count(s => s == true);
+
+                // this is the list of vertexes that we will feed into our shape drawing functions
+                List<float[]> vertexes = new List<float[]>();
+
+                if (underPointCount == 4) // if all of the points are below the ground, then it must just be a solid square so we draw a quad between all four courners
+                {
+                    vertexes.Add([cornerValues[0,0], cornerValues[0,1]]);
+                    vertexes.Add([cornerValues[1,0], cornerValues[1,1]]);
+                    vertexes.Add([cornerValues[2,0], cornerValues[2,1]]);
+                    vertexes.Add([cornerValues[3,0], cornerValues[3,1]]);
+                    drawQuad(vertexes);
+                }
+                else if (underPointCount == 3) // if 3 of the points are under the ground, then we need 3 triangles, one between the 3 corners, and then a quad consisting of 2 triangles that makes up the extra area from the interpolation 
+                {
+                    for (int i = 0; i < underPointsBools.Count(); i++)
+                    {
+                        if (underPointsBools[i])
+                        {
+                            vertexes.Add([cornerValues[i, 0], cornerValues[i, 1]]);
+                        }
+                    }
+                    drawTriangle(vertexes);
+                }
+                
+                else if (underPointCount == 2) // if 2 points are under the ground, then there are a couple cases, 4 where they are adjacent corners, and 2 where they are opposing corners
+                {
+                    // add the active vertexes to the vertex list
+                    for (int i = 0; i < underPointsBools.Count(); i++)
+                    {
+                        if (underPointsBools[i])
+                        {
+                            vertexes.Add([cornerValues[i, 0], cornerValues[i, 1]]);
+                        }
+                    }
+                    // if the top left and top right vertexes are underground
+                    if (underPointsBools.SequenceEqual(new bool[]{true, true, false, false}))
+                    {
+                        sameCorners(vertexes, findZero(topLeft), findZero(topRight), false);
+                    }
+
+                    // if the top left and bottom left vertexes are underground
+                    else if (underPointsBools.SequenceEqual(new bool[]{true, false, true, false}))
+                    {
+                        sameCorners(vertexes, findZero(topLeft), findZero(bottomLeft), false);
+                    }
+
+                    // if the top left and bottom right corners are underground
+                    else if (underPointsBools.SequenceEqual(new bool[]{true, false, false, true}))
+                    {
+                        oppositeCorners(vertexes, findZero(topLeft), findZero(bottomRight), true);
+                    }
+
+                    // if the top rigt and bottom left corners are underground
+                    else if (underPointsBools.SequenceEqual(new bool[]{false, true, true, false}))
+                    {
+                        oppositeCorners(vertexes, findZero(topRight), findZero(bottomLeft), true);
+                    }
+
+                    // if the top right and bottom right corners are underground
+                    else if (underPointsBools.SequenceEqual(new bool[]{false, true, false, true}))
+                    {
+                        sameCorners(vertexes, findZero(topRight), findZero(bottomRight), true);
+                    }
+
+                    //if the bottom left and bottom right corners are underground
+                    else if (underPointsBools.SequenceEqual(new bool[]{false, false, true, true}))
+                    {
+                        sameCorners(vertexes, findZero(bottomLeft), findZero(bottomRight), true);
+                    }
+                }
+                else if (underPointCount == 1) // if only one point is below ground then we need to draw a single triangle between the underground corner and the 2 interpolated values.
+                {
+                    if (underPointsBools[0])
+                    {
+                        vertexes.Add([cornerValues[0,0], cornerValues[0,1]]);
+                        vertexes.Add([findZero(topLeft)*widthMult+cornerValues[0,0], cornerValues[0,1]]);
+                        vertexes.Add([cornerValues[0,0], findZero(topLeft)*heightMult+cornerValues[0,1]]);
+                    }
+                    else if (underPointsBools[1])
+                    {
+                        vertexes.Add([cornerValues[1,0], cornerValues[1,1]]);
+                        vertexes.Add([-findZero(topRight)*widthMult+cornerValues[1,0], cornerValues[1,1]]);
+                        vertexes.Add([cornerValues[1,0], findZero(topRight)*heightMult+cornerValues[1,1]]);
+                    }
+                    else if (underPointsBools[2])
+                    {
+                        vertexes.Add([cornerValues[2,0], cornerValues[2,1]]);
+                        vertexes.Add([findZero(bottomLeft)*widthMult+cornerValues[2,0], cornerValues[2,1]]);
+                        vertexes.Add([cornerValues[2,0], -findZero(bottomLeft)*heightMult+cornerValues[2,1]]);
+                    }
+                    else
+                    {
+                        vertexes.Add([cornerValues[3,0], cornerValues[3,1]]);
+                        vertexes.Add([-findZero(bottomRight)*widthMult+cornerValues[3,0], cornerValues[3,1]]);
+                        vertexes.Add([cornerValues[3,0], -findZero(bottomRight)*heightMult+cornerValues[3,1]]);
+                    }
+                    drawTriangle(vertexes);
+                }
+                
+                
+            }
+        }
+    }
+    
+    private void drawQuad(List<float[]> vertexes)
+    {
+        // First Triangle
+        drawTriangle([vertexes[0], vertexes[1], vertexes[2]]);
+
+        //Second Triangle
+        drawTriangle([vertexes[1], vertexes[2], vertexes[3]]);
+    }
+    private void drawTriangle(List<float[]> vertexes)
+    {
+        // add the vertexes to the verts list and the uvs (which track what order stuff should be connected) to their list, counting up
+        uvs.Add(new Vector2(uvs.Count, 0));
+        verts.Add(new Vector3(vertexes[0][0], vertexes[0][1], 0));
+        uvs.Add(new Vector2(uvs.Count, 0));
+        verts.Add(new Vector3(vertexes[1][0], vertexes[1][1], 0));
+        uvs.Add(new Vector2(uvs.Count, 0));
+        verts.Add(new Vector3(vertexes[2][0], vertexes[2][1], 0));
+    }
+    private void oppositeCorners(List<float[]> vertexes, float shift1, float shift2, bool topRight) // this is run when 2 corners are underground but not adjacent
+    {
+        // we have shift one and shift two, these are used one for each corner to interpolate, but we also need horizontal and vertical versions as the bottom vertexes will need to go up
+        float shift3 = shift1;
+        float shift4 = shift2;
+        if (topRight)
+        {
+            shift3 *= -1;
+        }
+        else
+        {
+            shift4 *= -1;
+        }
+        // make a list for the top corner's vertexes and the bottom's
+        List<float[]> vertexesTop = [
+            [vertexes[0][0], vertexes[0][1]],
+            [vertexes[0][0], vertexes[0][1]+shift1*heightMult],
+            [vertexes[0][0]+shift3*widthMult, vertexes[0][1]]
+        ];
+        List<float[]> vertexesBottom = [
+            [vertexes[1][0], vertexes[1][1]],
+            [vertexes[1][0], vertexes[1][1]-shift2*heightMult],
+            [vertexes[1][0]+shift4*widthMult, vertexes[1][1]]
+        ];
+        drawTriangle(vertexesTop);
+        drawTriangle(vertexesBottom);
+    }
+    private void sameCorners(List<float[]> vertexes, float shift1, float shift2, bool bottomOrRightSide) // this is run when 2 corners are underground and are adjacent
+    {
+        // the first shift is for one side, the second shift is for the second side, this is because it is likely the 2 points will have different values, which means we need to apply different interpolation
+
+        // this is a flag to say if it is a right side or a bottom side, then we need our 2 interpolated vertexes above/to the right of the original 2, which requires a negative shift
+        if (bottomOrRightSide)
+        {
+            shift1 *= -1;
+            shift2 *= -1;
+        }
+        if (vertexes[0][0] == vertexes[1][0]) // if the x values are the same, then it is a right or left side, otherwise it must be a top or bottom side, therefore we apply our shifts in different places
+        {
+            vertexes.Add([(float)(vertexes[0][0]+shift1*widthMult), vertexes[0][1]]);
+            vertexes.Add([(float)(vertexes[1][0]+shift2*widthMult), vertexes[1][1]]);
+        }
+        else
+        {
+            vertexes.Add([vertexes[0][0], (float)(vertexes[0][1]+shift1*heightMult)]);
+            vertexes.Add([vertexes[1][0], (float)(vertexes[1][1]+shift2*heightMult)]);
+        }
+        drawQuad(vertexes);
+    }
+    private float findZero(float a)
+    {
+        return (-a)/20;
+    }
+}

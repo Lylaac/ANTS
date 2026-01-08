@@ -1,9 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://d30rksano2g4v"]
+[gd_scene load_steps=6 format=3 uid="uid://d30rksano2g4v"]
 
 [ext_resource type="Texture2D" uid="uid://btlhqqewmdnq3" path="res://icon.svg" id="1_wtcfe"]
+[ext_resource type="Script" uid="uid://dkrpw03voqxcf" path="res://Icon.cs" id="2_0e48y"]
+[ext_resource type="Texture2D" uid="uid://ciognx5dvht2d" path="res://textures/tempgroundtexture.png" id="3_epypp"]
+[ext_resource type="Script" uid="uid://bc1cw2xgb1rpt" path="res://GroundMesh.cs" id="4_0hol4"]
+
+[sub_resource type="ArrayMesh" id="ArrayMesh_0hol4"]
 
 [node name="Node2D" type="Node2D"]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(299, 246)
+visible = false
+position = Vector2(930, 144)
 texture = ExtResource("1_wtcfe")
+script = ExtResource("2_0e48y")
+
+[node name="GroundMesh" type="MeshInstance2D" parent="."]
+mesh = SubResource("ArrayMesh_0hol4")
+texture = ExtResource("3_epypp")
+script = ExtResource("4_0hol4")
