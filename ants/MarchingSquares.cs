@@ -16,6 +16,7 @@ public class MarchingSquares
     // verts and uvs are used by the mesh to figure out where to draw corners and in what order to connect them
     public List<Vector2> verts = [];
     public List<Vector2> uvs = [];
+    public List<Vector2> edgeVerts = [];
 
     // this gets the resolution of the screen and then finds out what to multiply our numbers by to stretch the mesh to fill the screen
     static Vector2I screenSize = DisplayServer.WindowGetSize();
@@ -26,16 +27,21 @@ public class MarchingSquares
 
     public MarchingSquares()
     {
-        GD.Print(heightMult);
         generateField();
         generateVertexes();
+
+        edgeVerts.Add(new Vector2(width*widthMult, height*heightMult));
+        edgeVerts.Add(new Vector2(0, height*heightMult));
+        
+        
     }
 
     // This function generates the values of all of the points that will be used for interpolation
     private void generateField()
     {
         //Using the current millisecond as the seed to ensure different results each time
-        Random rnd = new Random(DateTime.Now.Millisecond);
+        Random rnd = new Random(1);
+        //DateTime.Now.Millisecond
 
         // Here we set a random height for the floor that is between 5% less than and 5% more than the center
         int floorHeight = rnd.Next((int)(height / 2 - (height * 0.05)), (int)(height / 2 + (height * 0.05)));
@@ -124,23 +130,38 @@ public class MarchingSquares
                     {
                         vertexes.Add([cornerValues[1, 0], cornerValues[1,1]+heightMult*findShift(topRight, bottomRight)]);
                         vertexes.Add([cornerValues[2, 0]+widthMult*findShift(bottomLeft, bottomRight), cornerValues[2,1]]);
+
+                        edgeVerts.Add(new Vector2(cornerValues[1, 0], cornerValues[1,1]+heightMult*findShift(topRight, bottomRight)));
+                        edgeVerts.Add(new Vector2(cornerValues[2, 0]+widthMult*findShift(bottomLeft, bottomRight), cornerValues[2,1]));
                     }
                     else if (underPointsBools.SequenceEqual(new bool[]{true, true, false, true})) // bottom left false
                     {
                         vertexes.Add([cornerValues[0, 0], cornerValues[0,1]+heightMult*findShift(topLeft, bottomLeft)]);
                         vertexes.Add([cornerValues[3, 0]-widthMult*findShift(bottomRight, bottomLeft), cornerValues[3,1]]);
+
+                        edgeVerts.Add(new Vector2(cornerValues[0, 0], cornerValues[0,1]+heightMult*findShift(topLeft, bottomLeft)));
+                        edgeVerts.Add(new Vector2(cornerValues[3, 0]-widthMult*findShift(bottomRight, bottomLeft), cornerValues[3,1]));
+
                         (vertexes[1], vertexes[0]) = (vertexes[0], vertexes[1]);
                     }
                     else if (underPointsBools.SequenceEqual(new bool[]{true, false, true, true})) // top right false
                     {
                         vertexes.Add([cornerValues[0, 0]+widthMult*findShift(topLeft, topRight), cornerValues[0,1]]);
                         vertexes.Add([cornerValues[3, 0], cornerValues[3,1]-heightMult*findShift(bottomRight, topRight)]);
+
+                        edgeVerts.Add(new Vector2(cornerValues[0, 0]+widthMult*findShift(topLeft, topRight), cornerValues[0,1]));
+                        edgeVerts.Add(new Vector2(cornerValues[3, 0], cornerValues[3,1]-heightMult*findShift(bottomRight, topRight)));
+
                         (vertexes[1], vertexes[0]) = (vertexes[0], vertexes[1]);
                     }
                     else if (underPointsBools.SequenceEqual(new bool[]{false, true, true, true})) // top left false
                     {
                         vertexes.Add([cornerValues[2, 0], cornerValues[2,1]-heightMult*findShift(bottomLeft, topLeft)]);
                         vertexes.Add([cornerValues[1, 0]-widthMult*findShift(topRight, topLeft), cornerValues[1,1]]);
+
+                        edgeVerts.Add(new Vector2(cornerValues[2, 0], cornerValues[2,1]-heightMult*findShift(bottomLeft, topLeft)));
+                        edgeVerts.Add(new Vector2(cornerValues[1, 0]-widthMult*findShift(topRight, topLeft), cornerValues[1,1]));
+
                         (vertexes[2], vertexes[0]) = (vertexes[0], vertexes[2]);
                     }
                     drawPent(vertexes);
@@ -201,24 +222,36 @@ public class MarchingSquares
                         vertexes.Add([cornerValues[0,0], cornerValues[0,1]]);
                         vertexes.Add([findShift(topLeft, topRight)*widthMult+cornerValues[0,0], cornerValues[0,1]]);
                         vertexes.Add([cornerValues[0,0], findShift(topLeft, bottomLeft)*heightMult+cornerValues[0,1]]);
+
+                        edgeVerts.Add(new Vector2(findShift(topLeft, topRight)*widthMult+cornerValues[0,0], cornerValues[0,1]));
+                        edgeVerts.Add(new Vector2(cornerValues[0,0], findShift(topLeft, bottomLeft)*heightMult+cornerValues[0,1]));
                     }
                     else if (underPointsBools[1])
                     {
                         vertexes.Add([cornerValues[1,0], cornerValues[1,1]]);
                         vertexes.Add([-findShift(topRight, topLeft)*widthMult+cornerValues[1,0], cornerValues[1,1]]);
                         vertexes.Add([cornerValues[1,0], findShift(topRight, bottomRight)*heightMult+cornerValues[1,1]]);
+
+                        edgeVerts.Add(new Vector2(-findShift(topRight, topLeft)*widthMult+cornerValues[1,0], cornerValues[1,1]));
+                        edgeVerts.Add(new Vector2(cornerValues[1,0], findShift(topRight, bottomRight)*heightMult+cornerValues[1,1]));
                     }
                     else if (underPointsBools[2])
                     {
                         vertexes.Add([cornerValues[2,0], cornerValues[2,1]]);
                         vertexes.Add([findShift(bottomLeft, bottomRight)*widthMult+cornerValues[2,0], cornerValues[2,1]]);
                         vertexes.Add([cornerValues[2,0], -findShift(bottomLeft, topLeft)*heightMult+cornerValues[2,1]]);
+
+                        edgeVerts.Add(new Vector2(findShift(bottomLeft, bottomRight)*widthMult+cornerValues[2,0], cornerValues[2,1]));
+                        edgeVerts.Add(new Vector2(cornerValues[2,0], -findShift(bottomLeft, topLeft)*heightMult+cornerValues[2,1]));                        
                     }
                     else
                     {
                         vertexes.Add([cornerValues[3,0], cornerValues[3,1]]);
                         vertexes.Add([-findShift(bottomRight, bottomLeft)*widthMult+cornerValues[3,0], cornerValues[3,1]]);
                         vertexes.Add([cornerValues[3,0], -findShift(bottomRight, topRight)*heightMult+cornerValues[3,1]]);
+
+                        edgeVerts.Add(new Vector2(-findShift(bottomRight, bottomLeft)*widthMult+cornerValues[3,0], cornerValues[3,1]));
+                        edgeVerts.Add(new Vector2(cornerValues[3,0], -findShift(bottomRight, topRight)*heightMult+cornerValues[3,1]));
                     }
                     drawTriangle(vertexes);
                     
@@ -271,6 +304,11 @@ public class MarchingSquares
         ];
         drawTriangle(vertexesTop);
         drawTriangle(vertexesBottom);
+
+        edgeVerts.Add(new Vector2(vertexes[0][0], vertexes[0][1]+vertShift1*heightMult));
+        edgeVerts.Add(new Vector2(vertexes[0][0]+horiShift1*widthMult, vertexes[0][1]));
+        edgeVerts.Add(new Vector2(vertexes[1][0], vertexes[1][1]-vertShift2*heightMult));
+        edgeVerts.Add(new Vector2(vertexes[1][0]+horiShift2*widthMult, vertexes[1][1]));
     }
     private void sameCorners(List<float[]> vertexes, float shift1, float shift2, bool bottomOrRightSide) // this is run when 2 corners are underground and are adjacent
     {
@@ -286,11 +324,17 @@ public class MarchingSquares
         {
             vertexes.Add([(float)(vertexes[0][0]+shift1*widthMult), vertexes[0][1]]);
             vertexes.Add([(float)(vertexes[1][0]+shift2*widthMult), vertexes[1][1]]);
+
+            edgeVerts.Add(new Vector2((float)(vertexes[0][0]+shift1*widthMult), vertexes[0][1]));
+            edgeVerts.Add(new Vector2((float)(vertexes[1][0]+shift2*widthMult), vertexes[1][1]));
         }
         else
         {
             vertexes.Add([vertexes[0][0], (float)(vertexes[0][1]+shift1*heightMult)]);
             vertexes.Add([vertexes[1][0], (float)(vertexes[1][1]+shift2*heightMult)]);
+
+            edgeVerts.Add(new Vector2(vertexes[0][0], (float)(vertexes[0][1]+shift1*heightMult)));
+            edgeVerts.Add(new Vector2(vertexes[1][0], (float)(vertexes[1][1]+shift2*heightMult)));
         }
         drawQuad(vertexes);
     }
@@ -304,21 +348,36 @@ public class MarchingSquares
     {
         return (-a)/(b-a);
     }
-    public void edit(Vector2 mousePos, bool subtract)
+    public void edit(Vector2 editPos, bool subtract)
     {
+        edgeVerts.Clear();
         int modifier = -1;
         if (subtract)
         {
             modifier = 1;
         }
-        int x = (int)(Math.Clamp(mousePos[0], 0, screenSize[0]) / widthMult);
-        int y = (int)(Math.Clamp(mousePos[1], 0, screenSize[1]) / heightMult);
+        int x = (int)((float)Math.Clamp(editPos[0], 0, screenSize[0]) / widthMult);
+        int y = (int)((float)Math.Clamp(editPos[1], 0, screenSize[1]) / heightMult);
 
         verts = new List<Vector2>();
         uvs = new List<Vector2>();
         points[y,x] = Math.Clamp(points[y,x] + modifier, -10, 10);
+        /*
+        if (x < width && y < height)
+        {
+            points[y+1,x+1] = Math.Clamp(points[y+1,x+1] + modifier, -10, 10);
+        }
+        else if (x < width)
+        {
+            points[y,x+1] = Math.Clamp(points[y,x+1] + modifier, -10, 10);
+        }
+        else if (y < height)
+        {
+            points[y+1,x] = Math.Clamp(points[y+1,x] + modifier, -10, 10);
+        }
         GD.Print(x, " ", y);
         GD.Print(points[y,x]);
+        */
         generateVertexes();
     }
 }
