@@ -16,7 +16,7 @@ public class MarchingSquares
     // verts and uvs are used by the mesh to figure out where to draw corners and in what order to connect them
     public List<Vector2> verts = [];
     public List<Vector2> uvs = [];
-    public List<Vector2> edgeVerts = [];
+    public List<Vector2> edgeVerts = []; // this is used to keep track of any vertexes that make up the perimeter of the shape, so that they can be used for the collision
 
     // this gets the resolution of the screen and then finds out what to multiply our numbers by to stretch the mesh to fill the screen
     static Vector2I screenSize = DisplayServer.WindowGetSize();
@@ -30,7 +30,7 @@ public class MarchingSquares
         generateField();
         generateVertexes();
 
-        edgeVerts.Add(new Vector2(width*widthMult, height*heightMult));
+        edgeVerts.Add(new Vector2(width*widthMult, height*heightMult)); // add the bottom left and bottom right corners to the array, we do bottom right first because they need to be in order
         edgeVerts.Add(new Vector2(0, height*heightMult));
         
         
@@ -40,8 +40,7 @@ public class MarchingSquares
     private void generateField()
     {
         //Using the current millisecond as the seed to ensure different results each time
-        Random rnd = new Random(1);
-        //DateTime.Now.Millisecond
+        Random rnd = new Random(DateTime.Now.Millisecond);
 
         // Here we set a random height for the floor that is between 5% less than and 5% more than the center
         int floorHeight = rnd.Next((int)(height / 2 - (height * 0.05)), (int)(height / 2 + (height * 0.05)));
@@ -362,22 +361,7 @@ public class MarchingSquares
         verts = new List<Vector2>();
         uvs = new List<Vector2>();
         points[y,x] = Math.Clamp(points[y,x] + modifier, -10, 10);
-        /*
-        if (x < width && y < height)
-        {
-            points[y+1,x+1] = Math.Clamp(points[y+1,x+1] + modifier, -10, 10);
-        }
-        else if (x < width)
-        {
-            points[y,x+1] = Math.Clamp(points[y,x+1] + modifier, -10, 10);
-        }
-        else if (y < height)
-        {
-            points[y+1,x] = Math.Clamp(points[y+1,x] + modifier, -10, 10);
-        }
-        GD.Print(x, " ", y);
-        GD.Print(points[y,x]);
-        */
+
         generateVertexes();
     }
 }
