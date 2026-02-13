@@ -1,50 +1,48 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Godot;
 
-public class MarchingSquares
+public static class MarchingSquares
 {
     // set the amount of columns of points we want and the amount of rows
     static int width = 10;
     static int height = 10;
 
+    //Using the current millisecond as the seed to ensure different results each time
+    static Random rnd = new Random(1);
+    //DateTime.Now.Millisecond
+
+    // Here we set a random height for the floor that is between 5% less than and 5% more than the center
+    public static int floorHeight = rnd.Next((int)(height / 2 - (height * 0.05)), (int)(height / 2 + (height * 0.05)));
+
     // initialise the points array for interpolation
-    int[,] points = new int[height,width];
+    static int[,] points = new int[height,width];
 
     // verts and uvs are used by the mesh to figure out where to draw corners and in what order to connect them
-    public List<Vector2> verts = [];
-    public List<Vector2> uvs = [];
-    public List<Vector2> edgeVerts = []; // this is used to keep track of any vertexes that make up the perimeter of the shape, so that they can be used for the collision
+    public static List<Vector2> verts {get; set;}
+    public static List<Vector2> uvs {get; set;}
+    public static List<Vector2> edgeVerts {get; set;} // this is used to keep track of any vertexes that make up the perimeter of the shape, so that they can be used for the collision
 
     // this gets the resolution of the screen and then finds out what to multiply our numbers by to stretch the mesh to fill the screen
     static Vector2I screenSize = DisplayServer.WindowGetSize();
-    static float heightMult = (float)screenSize[1] / (height-1);
+    public static float heightMult = (float)screenSize[1] / (height-1);
     static float widthMult = (float)screenSize[0] / (width-1);
 
-    
+    // this is for the groundMesh to check if there have been any edits to the mesh since it last updated
+    public static bool edited {get; set;}
 
-    public MarchingSquares()
-    {
-        generateField();
-        generateVertexes();
 
-        edgeVerts.Add(new Vector2(width*widthMult, height*heightMult)); // add the bottom left and bottom right corners to the array, we do bottom right first because they need to be in order
-        edgeVerts.Add(new Vector2(0, height*heightMult));
-        
-        
-    }
 
     // This function generates the values of all of the points that will be used for interpolation
-    private void generateField()
+    public static void generateField()
     {
-        //Using the current millisecond as the seed to ensure different results each time
-        Random rnd = new Random(DateTime.Now.Millisecond);
-
-        // Here we set a random height for the floor that is between 5% less than and 5% more than the center
-        int floorHeight = rnd.Next((int)(height / 2 - (height * 0.05)), (int)(height / 2 + (height * 0.05)));
-
+        edited = false;
+        //initialise our lists
+        verts = [];
+        uvs = [];
+        edgeVerts = [];
         // for every point, if it is above the height of the floor, then set it to 10 (the max value)
         // if it is the floor height, set it between 9 and 0, showing a distance to a border between ground and air
         // if it is one below the height of the floor, set it between -1 and -9, showing it is underground and close to a border
@@ -74,8 +72,9 @@ public class MarchingSquares
     }
 
     // this generates the actual vertex list which we then feed into the mesh
-    private void generateVertexes()
+    public static void generateVertexes()
     {
+        
         for (int y = 0; y < height - 1; y++)
         {
             for (int x = 0; x < width - 1; x++)
@@ -89,11 +88,12 @@ public class MarchingSquares
 
                 // this denotes where each of the corners are on the screen
                 float[,] cornerValues = {
-                    {x*widthMult,y*heightMult}, 
-                    {(x+1)*widthMult,y*heightMult}, 
-                    {x*widthMult,(y+1)*heightMult}, 
-                    {(x+1)*widthMult,(y+1)*heightMult}
+                    {x * widthMult, y * heightMult}, 
+                    {(x + 1) * widthMult, y * heightMult}, 
+                    {x * widthMult, (y + 1) * heightMult}, 
+                    {(x + 1) * widthMult, (y + 1) * heightMult}
                     };
+
                 // these denote if each corner is underground or overground
                 bool topLeftUnder = topLeft < 0;        bool topRightUnder = topRight < 0;
                 bool bottomLeftUnder = bottomLeft < 0;  bool bottomRightUnder = bottomRight < 0;
@@ -259,9 +259,14 @@ public class MarchingSquares
                 
             }
         }
+        
+        edgeVerts.Add(new Vector2(width*widthMult, height*heightMult)); // add the bottom left and bottom right corners to the array, we do bottom right first because they need to be in order
+        edgeVerts.Add(new Vector2(0, height*heightMult));
+
+
     }
     
-    private void drawQuad(List<float[]> vertexes)
+    private static void drawQuad(List<float[]> vertexes)
     {
         // First Triangle
         drawTriangle([vertexes[0], vertexes[1], vertexes[2]]);
@@ -269,7 +274,7 @@ public class MarchingSquares
         //Second Triangle
         drawTriangle([vertexes[1], vertexes[2], vertexes[3]]);
     }
-    private void drawTriangle(List<float[]> vertexes)
+    private static void drawTriangle(List<float[]> vertexes)
     {
         // add the vertexes to the verts list and the uvs (which track what order stuff should be connected) to their list, counting up
         uvs.Add(new Vector2(uvs.Count, 0));
@@ -279,7 +284,7 @@ public class MarchingSquares
         uvs.Add(new Vector2(uvs.Count, 0));
         verts.Add(new Vector2(vertexes[2][0], vertexes[2][1]));
     }
-    private void oppositeCorners(List<float[]> vertexes, float horiShift1, float vertShift1, float horiShift2, float vertShift2, bool topRight) // this is run when 2 corners are underground but not adjacent
+    private static void oppositeCorners(List<float[]> vertexes, float horiShift1, float vertShift1, float horiShift2, float vertShift2, bool topRight) // this is run when 2 corners are underground but not adjacent
     {
         // we have shift one and shift two, these are used one for each corner to interpolate, but we also need horizontal and vertical versions as the bottom vertexes will need to go up
         if (topRight)
@@ -309,7 +314,7 @@ public class MarchingSquares
         edgeVerts.Add(new Vector2(vertexes[1][0], vertexes[1][1]-vertShift2*heightMult));
         edgeVerts.Add(new Vector2(vertexes[1][0]+horiShift2*widthMult, vertexes[1][1]));
     }
-    private void sameCorners(List<float[]> vertexes, float shift1, float shift2, bool bottomOrRightSide) // this is run when 2 corners are underground and are adjacent
+    private static void sameCorners(List<float[]> vertexes, float shift1, float shift2, bool bottomOrRightSide) // this is run when 2 corners are underground and are adjacent
     {
         // the first shift is for one side, the second shift is for the second side, this is because it is likely the 2 points will have different values, which means we need to apply different interpolation
 
@@ -337,26 +342,27 @@ public class MarchingSquares
         }
         drawQuad(vertexes);
     }
-    private void drawPent(List<float[]> vertexes)
+    private static void drawPent(List<float[]> vertexes)
     {
         drawTriangle([vertexes[0], vertexes[1], vertexes[2]]);
         drawTriangle([vertexes[1], vertexes[2], vertexes[3]]);
         drawTriangle([vertexes[2], vertexes[3], vertexes[4]]);
     }
-    private float findShift(float a, float b)
+    private static float findShift(float a, float b)
     {
         return (-a)/(b-a);
     }
-    public void edit(Vector2 editPos, bool subtract)
+    public static void edit(Vector2 editPos, bool subtract)
     {
+        edited = true;
         edgeVerts.Clear();
         int modifier = -1;
         if (subtract)
         {
             modifier = 1;
         }
-        int x = (int)((float)Math.Clamp(editPos[0], 0, screenSize[0]) / widthMult);
-        int y = (int)((float)Math.Clamp(editPos[1], 0, screenSize[1]) / heightMult);
+        int x = (int)Math.Round(Math.Clamp(editPos[0], 0, screenSize[0]) / widthMult);
+        int y = (int)Math.Round(Math.Clamp(editPos[1], 0, screenSize[1]) / heightMult);
 
         verts = new List<Vector2>();
         uvs = new List<Vector2>();
