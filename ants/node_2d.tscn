@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://d30rksano2g4v"]
+[gd_scene load_steps=7 format=3 uid="uid://d30rksano2g4v"]
 
 [ext_resource type="Script" uid="uid://dqlk31inlaufw" path="res://Main.cs" id="1_q6r6c"]
 [ext_resource type="Texture2D" uid="uid://btlhqqewmdnq3" path="res://icon.svg" id="1_wtcfe"]
 [ext_resource type="Script" uid="uid://dkrpw03voqxcf" path="res://Icon.cs" id="2_0e48y"]
 [ext_resource type="Texture2D" uid="uid://ciognx5dvht2d" path="res://textures/tempgroundtexture.png" id="3_q6r6c"]
 [ext_resource type="Script" uid="uid://bc1cw2xgb1rpt" path="res://GroundMesh.cs" id="4_0hol4"]
+[ext_resource type="Script" uid="uid://2mq7xfcd4260" path="res://Camera.cs" id="6_kdubu"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_q6r6c")
@@ -18,3 +19,11 @@ script = ExtResource("2_0e48y")
 [node name="GroundMesh" type="MeshInstance2D" parent="."]
 texture = ExtResource("3_q6r6c")
 script = ExtResource("4_0hol4")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(951, 540)
+limit_left = 0
+limit_top = 0
+limit_right = 1920
+limit_bottom = 1080
+script = ExtResource("6_kdubu")

@@ -4,7 +4,7 @@ using System.Linq;
 
 public partial class Main : Node2D
 {
-	PackedScene WorkerAnt = GD.Load<PackedScene>("res://WorkerAnt.tscn");
+	PackedScene WorkerAnt = GD.Load<PackedScene>("res://workerAnt.tscn");
 	int startAntCount = 1;
 
 	// Called when the node enters the scene tree for the first time.

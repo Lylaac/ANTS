@@ -1,9 +1,11 @@
 using Godot;
 using System;
 using System.IO;
+using System.IO.Pipes;
 
 public partial class WorkerAnt : CharacterBody2D
 {
+	RayCast2D floorDetector;
 	Vector2 mod = new Vector2(300, 0);
 	Vector2[] path;
 	int aim = 0;
@@ -11,7 +13,7 @@ public partial class WorkerAnt : CharacterBody2D
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		
+		floorDetector = GetNode("FloorDetector") as RayCast2D;
 	}
 
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -39,15 +41,10 @@ public partial class WorkerAnt : CharacterBody2D
 				}
 				else if (path[aim].Y <= Position.Y)
 				{
-					Velocity += new Vector2(difference/10, 0);
+					Velocity += new Vector2(difference, 0);
 				}
 				else
 				{
-					GD.Print(path[aim]);
-					GD.Print(Position);
-
-					GD.Print(1);
-
 					MarchingSquares.edit(path[aim], true);
 				}
 				
@@ -63,6 +60,18 @@ public partial class WorkerAnt : CharacterBody2D
 			else if (Velocity.X < -20)
 			{
 				Velocity = new Vector2(-20, Velocity.Y);
+			}
+		}
+		if(IsOnFloor())
+		{
+			var angle = Vector2.Up.AngleTo(GetFloorNormal());
+			if (angle > 0)
+			{
+				SetRotation(Vector2.Up.AngleTo(GetFloorNormal()));
+			}
+			else
+			{
+				SetRotation(Vector2.Up.AngleTo(floorDetector.GetCollisionNormal()));
 			}
 		}
 		//GD.Print(Velocity);

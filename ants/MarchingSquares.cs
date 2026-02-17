@@ -7,8 +7,8 @@ using Godot;
 public static class MarchingSquares
 {
     // set the amount of columns of points we want and the amount of rows
-    static int width = 10;
-    static int height = 10;
+    static int width = 50;
+    static int height = 50;
 
     //Using the current millisecond as the seed to ensure different results each time
     static Random rnd = new Random(1);
@@ -364,9 +364,13 @@ public static class MarchingSquares
         int x = (int)Math.Round(Math.Clamp(editPos[0], 0, screenSize[0]) / widthMult);
         int y = (int)Math.Round(Math.Clamp(editPos[1], 0, screenSize[1]) / heightMult);
 
+        
+
         verts = new List<Vector2>();
         uvs = new List<Vector2>();
         points[y,x] = Math.Clamp(points[y,x] + modifier, -10, 10);
+        points[y,x-1] = Math.Clamp(points[y,x-1] + modifier, -10, 10);
+        points[y,x+1] = Math.Clamp(points[y,x+1] + modifier, -10, 10);
 
         generateVertexes();
     }

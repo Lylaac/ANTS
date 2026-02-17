@@ -30,7 +30,7 @@ public partial class GroundMesh : MeshInstance2D
     private void generateMesh()
     {
         var immMesh = new ImmediateMesh();
-        Color col = new Color(255, 0, 0);
+        Color col = new Color(0.5f, 0.2f, 0.1f);
         
         immMesh.SurfaceBegin(Mesh.PrimitiveType.Triangles);
         immMesh.SurfaceSetColor(col);
