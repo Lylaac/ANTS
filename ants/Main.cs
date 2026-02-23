@@ -12,7 +12,6 @@ public partial class Main : Node2D
 	{
 		GroundMesh test = GetNode("GroundMesh") as GroundMesh;
 		int floorHeight = (int)Math.Round(MarchingSquares.floorHeight * MarchingSquares.heightMult);
-		GD.Print(floorHeight);
 		for (int antCount = 0; antCount < startAntCount; antCount++)
 		{
 			CharacterBody2D instance = WorkerAnt.Instantiate() as CharacterBody2D;

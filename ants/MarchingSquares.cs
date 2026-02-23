@@ -193,7 +193,7 @@ public static class MarchingSquares
                     // if the top left and bottom right corners are underground
                     else if (underPointsBools.SequenceEqual(new bool[]{true, false, false, true}))
                     {
-                        oppositeCorners(vertexes, findShift(topLeft, topRight), findShift(topLeft, bottomLeft), findShift(bottomRight, bottomLeft), findShift(bottomRight, topRight), true);
+                        oppositeCorners(vertexes, findShift(topLeft, topRight), findShift(topLeft, bottomLeft), findShift(bottomRight, bottomLeft), findShift(bottomRight, topRight), false);
                     }
 
                     // if the top right and bottom left corners are underground
@@ -354,7 +354,7 @@ public static class MarchingSquares
     }
     public static void edit(Vector2 editPos, bool subtract)
     {
-        edited = true;
+        
         edgeVerts.Clear();
         int modifier = -1;
         if (subtract)
@@ -371,6 +371,8 @@ public static class MarchingSquares
         points[y,x] = Math.Clamp(points[y,x] + modifier, -10, 10);
         points[y,x-1] = Math.Clamp(points[y,x-1] + modifier, -10, 10);
         points[y,x+1] = Math.Clamp(points[y,x+1] + modifier, -10, 10);
+        points[y-1,x] = Math.Clamp(points[y-1,x] + modifier, -10, 10);
+        points[y+1,x] = Math.Clamp(points[y+1,x] + modifier, -10, 10);
 
         generateVertexes();
     }

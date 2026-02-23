@@ -6,7 +6,14 @@
 [node name="WorkerAnt" type="CharacterBody2D"]
 script = ExtResource("1_caqgl")
 
-[node name="FloorDetector" type="RayCast2D" parent="."]
+[node name="BackFloorDetector" type="RayCast2D" parent="."]
+position = Vector2(-25, 0)
+
+[node name="FrontFloorDetector" type="RayCast2D" parent="."]
+position = Vector2(7, 0)
+
+[node name="MiddleFloorDetector" type="RayCast2D" parent="."]
+position = Vector2(-10, 0)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(0, 17)
