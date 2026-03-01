@@ -7,20 +7,32 @@
 script = ExtResource("1_caqgl")
 
 [node name="BackFloorDetector" type="RayCast2D" parent="."]
-position = Vector2(-25, 0)
+position = Vector2(-25, -19)
 
 [node name="FrontFloorDetector" type="RayCast2D" parent="."]
-position = Vector2(7, 0)
+position = Vector2(7, -19)
 
 [node name="MiddleFloorDetector" type="RayCast2D" parent="."]
-position = Vector2(-10, 0)
+position = Vector2(-10, -19)
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, 17)
+position = Vector2(0, -2)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("2_caqgl")
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
-position = Vector2(0, 17)
+position = Vector2(0, -2)
 scale = Vector2(0.3, 0.3)
 polygon = PackedVector2Array(74, -55, 56, -55, 56, -48.7, 46, -46.6, 46, -29, 39.199997, -29, 36, -25.8, 36, -18.7, 26, -16.599998, 26, -9, 23.699997, -9, 21.599998, -19, -10.800003, -19, -14, -15.799999, -14, -8.700001, -21.400002, -7, -24, -7, -24, 1, -26, 1, -26, -5.799999, -29.199997, -9, -36.3, -9, -38.4, -19, -80.8, -19, -84, -15.799999, -84, -8.700001, -91.4, -7, -94, -7, -94, 1, -100, 1, -100, 19, -94, 19, -94, 26.599998, -84, 28.599998, -84, 55, -66, 55, -66, 39, -44, 39, -44, 55, -26, 55, -26, 29, -23.699997, 29, -21.599998, 39, 6, 39, 6, 55, 24, 55, 24, 28.599998, 34, 26.599998, 34, 9, 36.300003, 9, 38.399994, 19, 80.8, 19, 84, 15.800003, 84, 8.599998, 91.399994, 7, 94, 7, 94, -16.599998, 84, -18.7, 84, -21.400002, 91.399994, -23, 94, -23, 94, -41, 100, -41, 100, -55, 86, -55, 86, -48.7, 76, -46.6, 76, -29, 64, -29, 64, -41.4, 74, -43.4)
+
+[node name="FrontDetector1" type="RayCast2D" parent="."]
+position = Vector2(0, -5.999999)
+target_position = Vector2(50, 0)
+
+[node name="FrontDetector2" type="RayCast2D" parent="."]
+position = Vector2(0, -18)
+target_position = Vector2(50, 0)
+
+[node name="FrontDetector3" type="RayCast2D" parent="."]
+position = Vector2(0, -11.999999)
+target_position = Vector2(50, 0)

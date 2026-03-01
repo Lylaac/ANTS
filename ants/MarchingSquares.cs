@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Godot;
 
@@ -354,7 +353,6 @@ public static class MarchingSquares
     }
     public static void edit(Vector2 editPos, bool subtract)
     {
-        
         edgeVerts.Clear();
         int modifier = -1;
         if (subtract)

@@ -5,8 +5,11 @@ using System.Linq;
 
 public static class Ant // an abstract class full of stuff we will need for the 3 different types of ant
 {
-    
-    public static (Vector2[], bool[]) pathFind(Vector2 start, Vector2 end) // An A star pathfinding algorithm.
+    public static Vector2? foodRoomStart = null;
+    public static Vector2? sleepRoomStart = null;
+    public static Vector2? throneRoomStart = null;
+    public static Vector2? mainCorridorStart = null;
+    public static Vector2[] pathFind(Vector2 start, Vector2 end) // An A star pathfinding algorithm.
     {
         start = new Vector2(roundToNearestTen(start.X), roundToNearestTen(start.Y));
         end = new Vector2(roundToNearestTen(end.X), roundToNearestTen(end.Y));
@@ -14,7 +17,6 @@ public static class Ant // an abstract class full of stuff we will need for the 
         int currentDistance = 0;
         List<Vector2> visitedList = [];
         List<Vector2> travelVectors = []; // this is our actual path we will be returning
-        List<bool> digVectors = []; // the vectors we need to dig on
         int vectorGap = 10; // this is the gap between vectors, a bigger gap means less vectors scanned but also lower accuracy, lower gap is laggier
         while (center.X != end.X || center.Y!= end.Y) // while we haven't found our end node
         {
@@ -22,9 +24,9 @@ public static class Ant // an abstract class full of stuff we will need for the 
             Vector2[] surroundingCoordinates = {
             center with { X = center.X - vectorGap, Y = center.Y },                                                                      center with { X = center.X + vectorGap, Y = center.Y },
             center with { X = center.X - vectorGap, Y = center.Y + vectorGap }, center with { X = center.X, Y = center.Y + vectorGap },  center with { X = center.X + vectorGap, Y = center.Y + vectorGap },
-            center with { X = center.X - vectorGap, Y = center.Y - vectorGap },                                                          center with { X = center.X + vectorGap, Y = center.Y - vectorGap }
+            center with { X = center.X - vectorGap, Y = center.Y - vectorGap }, center with { X = center.X, Y = center.Y - vectorGap },  center with { X = center.X + vectorGap, Y = center.Y - vectorGap }
             };
-            double lowestDistance = Int32.MaxValue; // set this to an impossibly high number so it will always get overwritten
+            double lowestDistance = int.MaxValue; // set this to an impossibly high number so it will always get overwritten
             int bestVector = 0; // keeps track of what is the next closest vector to travel to in order to get to the end vector
             for (int count = 0; count <  surroundingCoordinates.Length; count ++)
             {
@@ -32,7 +34,7 @@ public static class Ant // an abstract class full of stuff we will need for the 
                 
                 if (Geometry2D.IsPointInPolygon(surroundingCoordinates[count], MarchingSquares.edgeVerts.ToArray())) // add a penalty for nodes under the ground, digging is slower unless you have to take a massive detour or cannot do it otherwise
                 {
-                    distancesAddHeuristics += 0.1;
+                    distancesAddHeuristics += 5;
                 }
                 
                 if (distancesAddHeuristics < lowestDistance && !visitedList.Contains(surroundingCoordinates[count])) // lowest distance + heuristic wins
@@ -41,20 +43,12 @@ public static class Ant // an abstract class full of stuff we will need for the 
                     bestVector = count;
                 }
             }
-            if (Geometry2D.IsPointInPolygon(surroundingCoordinates[bestVector], MarchingSquares.edgeVerts.ToArray()))
-            {
-                digVectors.Add(true);
-            }
-            else
-            {
-                digVectors.Add(false);
-            }
             visitedList.Add(surroundingCoordinates[bestVector]);
             travelVectors.Add(surroundingCoordinates[bestVector]); // add the vector to the path, change the center so this is our new vector, then increase the distance by one and do it all over again!
             center = surroundingCoordinates[bestVector];
             currentDistance += 1;
         }
-        return (travelVectors.ToArray(), digVectors.ToArray());
+        return travelVectors.ToArray();
         
 
     }
