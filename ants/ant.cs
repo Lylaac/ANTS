@@ -11,6 +11,7 @@ public static class Ant // an abstract class full of stuff we will need for the 
     public static Vector2 throneRoomStart = Vector2.Zero;
     public static Vector2 mainCorridorStart = Vector2.Zero;
 
+    // these keep track of which ant is doing what
     public static int foodRoomBuilder = -1;
     public static int sleepRoomBuilder = -1;
     public static int throneRoomBuilder = -1;
@@ -40,9 +41,9 @@ public static class Ant // an abstract class full of stuff we will need for the 
             {
                 double distancesAddHeuristics = currentDistance + heuristicFind(surroundingCoordinates[count], end); // add the current distance plus our heuristic
                 
-                if (Geometry2D.IsPointInPolygon(surroundingCoordinates[count], MarchingSquares.edgeVerts.ToArray()) && !ignoreDiggingCost) // add a penalty for nodes under the ground, digging is slower unless you have to take a massive detour or cannot do it otherwise
+                if (Geometry2D.IsPointInPolygon(surroundingCoordinates[count], MarchingSquares.edgeVerts.ToArray()) && !ignoreDiggingCost) // add a penalty for nodes under the ground, digging is slower unless you have to take a massive detour or cannot do it otherwise, ignoring digging costs if we are told to do so, for tasks that require digging
                 {
-                    distancesAddHeuristics += 1000000;
+                    distancesAddHeuristics += 100;
                 }
                 
                 if (distancesAddHeuristics < lowestDistance && !visitedList.Contains(surroundingCoordinates[count])) // lowest distance + heuristic wins

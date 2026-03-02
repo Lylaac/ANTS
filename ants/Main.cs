@@ -29,21 +29,16 @@ public partial class Main : Node2D
 	{
 	}
 
-	public void antRandomiser()
+	public void antRandomiser() // this is called every 5 seconds by a timer node
 	{
-		GD.Print(Ant.foodRoomBuilder);
-		GD.Print(Ant.sleepRoomBuilder);
-		GD.Print(Ant.throneRoomBuilder);
-		GD.Print("e");
-		foreach(WorkerAnt ant in ants)
+		foreach(WorkerAnt ant in ants) // for every ant that exists
 		{
-			random = rng.Next(0, 100);
-			for (int loopCount = 0; loopCount < 3; loopCount++)
+			for (int loopCount = 0; loopCount < 3; loopCount++) // for each need
 			{
-				random = rng.Next(0, 100);
-				if (random <= 5)
+				random = rng.Next(0, 100); // generate a random number between 1 and 100
+				if (random <= 5) // if the number is less than 5, giving us a 5 percent chance
 				{
-					switch (loopCount)
+					switch (loopCount) // depending on where in the loop we are, we will subtract one from one of the 3 needs
 					{
 						case 0:
 							ant.food --;
