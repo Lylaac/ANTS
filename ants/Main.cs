@@ -1,27 +1,25 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 public partial class Main : Node2D
 {
 	Random rng = new Random(DateTime.Now.Millisecond);
 	PackedScene WorkerAnt = GD.Load<PackedScene>("res://workerAnt.tscn");
 	static List<WorkerAnt> ants = [];
-	int startAntCount = 1;
+	int startAntCount = 3;
 	int random = 0;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		GroundMesh test = GetNode("GroundMesh") as GroundMesh;
 		int floorHeight = (int)Math.Round(MarchingSquares.floorHeight * MarchingSquares.heightMult);
 		for (int antCount = 0; antCount < startAntCount; antCount++)
 		{
 			WorkerAnt instance = WorkerAnt.Instantiate() as WorkerAnt;
-			
+			instance.uniqueID = antCount;
 			ants.Add(instance);
-			instance.SetPosition(new Vector2(1200 + antCount*300, floorHeight-50));
+			instance.SetPosition(new Vector2(600 + antCount*300, floorHeight-50));
 			AddChild(instance);
 		}
 	}
@@ -33,11 +31,13 @@ public partial class Main : Node2D
 
 	public void antRandomiser()
 	{
-		GD.Print(2);
+		GD.Print(Ant.foodRoomBuilder);
+		GD.Print(Ant.sleepRoomBuilder);
+		GD.Print(Ant.throneRoomBuilder);
+		GD.Print("e");
 		foreach(WorkerAnt ant in ants)
 		{
 			random = rng.Next(0, 100);
-			ant.fiveSecondTimer();
 			for (int loopCount = 0; loopCount < 3; loopCount++)
 			{
 				random = rng.Next(0, 100);

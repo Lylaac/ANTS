@@ -5,11 +5,19 @@ using System.Linq;
 
 public static class Ant // an abstract class full of stuff we will need for the 3 different types of ant
 {
-    public static Vector2? foodRoomStart = null;
-    public static Vector2? sleepRoomStart = null;
-    public static Vector2? throneRoomStart = null;
-    public static Vector2? mainCorridorStart = null;
-    public static Vector2[] pathFind(Vector2 start, Vector2 end) // An A star pathfinding algorithm.
+    // these vectors keep track of important places that the ants need to "remember"
+    public static Vector2 foodRoomStart = Vector2.Zero;
+    public static Vector2 sleepRoomStart = Vector2.Zero;
+    public static Vector2 throneRoomStart = Vector2.Zero;
+    public static Vector2 mainCorridorStart = Vector2.Zero;
+
+    public static int foodRoomBuilder = -1;
+    public static int sleepRoomBuilder = -1;
+    public static int throneRoomBuilder = -1;
+    public static int mainCorridorBuilder = -1;
+
+
+    public static List<Vector2> pathFind(Vector2 start, Vector2 end, bool ignoreDiggingCost) // An A star pathfinding algorithm.
     {
         start = new Vector2(roundToNearestTen(start.X), roundToNearestTen(start.Y));
         end = new Vector2(roundToNearestTen(end.X), roundToNearestTen(end.Y));
@@ -17,7 +25,7 @@ public static class Ant // an abstract class full of stuff we will need for the 
         int currentDistance = 0;
         List<Vector2> visitedList = [];
         List<Vector2> travelVectors = []; // this is our actual path we will be returning
-        int vectorGap = 10; // this is the gap between vectors, a bigger gap means less vectors scanned but also lower accuracy, lower gap is laggier
+        int vectorGap = 5; // this is the gap between vectors, a bigger gap means less vectors scanned but also lower accuracy, lower gap is laggier
         while (center.X != end.X || center.Y!= end.Y) // while we haven't found our end node
         {
             // create a list of the surrounding vectors
@@ -32,9 +40,9 @@ public static class Ant // an abstract class full of stuff we will need for the 
             {
                 double distancesAddHeuristics = currentDistance + heuristicFind(surroundingCoordinates[count], end); // add the current distance plus our heuristic
                 
-                if (Geometry2D.IsPointInPolygon(surroundingCoordinates[count], MarchingSquares.edgeVerts.ToArray())) // add a penalty for nodes under the ground, digging is slower unless you have to take a massive detour or cannot do it otherwise
+                if (Geometry2D.IsPointInPolygon(surroundingCoordinates[count], MarchingSquares.edgeVerts.ToArray()) && !ignoreDiggingCost) // add a penalty for nodes under the ground, digging is slower unless you have to take a massive detour or cannot do it otherwise
                 {
-                    distancesAddHeuristics += 5;
+                    distancesAddHeuristics += 1000000;
                 }
                 
                 if (distancesAddHeuristics < lowestDistance && !visitedList.Contains(surroundingCoordinates[count])) // lowest distance + heuristic wins
@@ -48,7 +56,7 @@ public static class Ant // an abstract class full of stuff we will need for the 
             center = surroundingCoordinates[bestVector];
             currentDistance += 1;
         }
-        return travelVectors.ToArray();
+        return travelVectors;
         
 
     }
@@ -59,17 +67,17 @@ public static class Ant // an abstract class full of stuff we will need for the 
         float yDis = coordinates.Y - destination.Y;
         return Math.Sqrt(Math.Pow(xDis, 2) + Math.Pow(yDis, 2));
     }
-    private static float roundToNearestTen(double value)
+    private static float roundToNearestTen(double value) // this, as stated, rounds the given value to the nearest 10
     {
-        value = Math.Round(value);
-        string strVal = value.ToString();
-        if (strVal[strVal.Length-1] < 5)
+        value = Math.Round(value); // round it to a full number first
+        string strVal = value.ToString(); //convert to a string then if the last item in the string (the number in the "ones" column) is under 5 then it is round down
+        if (strVal[strVal.Length-1] < 5) 
         {
-            return 10*((int)value/10);
+            return 10*((int)value/10); // rounds down using integer division
         }
         else
         {
-            return 10*(((int)value+1) / 10);
+            return 10*(((int)value+1) / 10); //rounds up using integer division
         }
     }
 }

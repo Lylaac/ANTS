@@ -32,6 +32,8 @@ public static class MarchingSquares
     // this is for the groundMesh to check if there have been any edits to the mesh since it last updated
     public static bool edited {get; set;}
 
+    public static List<Vector2> undergroundBoundaries = [];
+
 
 
     // This function generates the values of all of the points that will be used for interpolation
@@ -261,6 +263,10 @@ public static class MarchingSquares
         
         edgeVerts.Add(new Vector2(width*widthMult, height*heightMult)); // add the bottom left and bottom right corners to the array, we do bottom right first because they need to be in order
         edgeVerts.Add(new Vector2(0, height*heightMult));
+
+        undergroundBoundaries.AddRange(edgeVerts.GetRange(0, width*2));
+        undergroundBoundaries.Add(new Vector2(width*widthMult, height*heightMult));
+        undergroundBoundaries.Add(new Vector2(0, height*heightMult));
 
 
     }
