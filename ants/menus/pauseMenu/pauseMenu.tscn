@@ -1,0 +1,68 @@
+[gd_scene load_steps=7 format=3 uid="uid://k0a8743idroy"]
+
+[ext_resource type="Script" uid="uid://bnum6m2bjr17w" path="res://menus/pauseMenu/PauseMenu.cs" id="1_e46cq"]
+[ext_resource type="Texture2D" uid="uid://dnao0d6pxkp7" path="res://textures/pauseIcon.png" id="2_6e8r7"]
+[ext_resource type="Texture2D" uid="uid://gy1f7abtpv33" path="res://textures/menuscreens/buttons/continueButton.png" id="3_hmsgv"]
+[ext_resource type="Texture2D" uid="uid://brq4qqr513hpp" path="res://textures/menuscreens/buttons/saveButton.png" id="4_wr2v6"]
+[ext_resource type="Texture2D" uid="uid://c26o5oaxj0578" path="res://textures/menuscreens/buttons/optionsButton.png" id="5_e46cq"]
+[ext_resource type="Texture2D" uid="uid://cuboeonxe4wav" path="res://textures/menuscreens/buttons/quitButton2.png" id="6_e46cq"]
+
+[node name="pauseMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_e46cq")
+
+[node name="PauseIcon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 670.0
+offset_top = 135.0
+offset_right = 1868.0
+offset_bottom = 472.0
+scale = Vector2(0.45, 0.45)
+texture = ExtResource("2_6e8r7")
+
+[node name="ContinueButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 764.00006
+offset_top = 311.0
+offset_right = 1594.0
+offset_bottom = 648.0
+scale = Vector2(0.45, 0.45)
+texture_normal = ExtResource("3_hmsgv")
+
+[node name="SaveButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 760.0
+offset_top = 469.0
+offset_right = 1590.0
+offset_bottom = 806.0
+scale = Vector2(0.45, 0.45)
+texture_normal = ExtResource("4_wr2v6")
+
+[node name="OptionsButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 760.0
+offset_top = 638.0
+offset_right = 1590.0
+offset_bottom = 975.0
+scale = Vector2(0.45, 0.45)
+texture_normal = ExtResource("5_e46cq")
+
+[node name="quitButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 760.0
+offset_top = 797.0
+offset_right = 1590.0
+offset_bottom = 1134.0
+scale = Vector2(0.45, 0.45)
+texture_normal = ExtResource("6_e46cq")
+
+[connection signal="pressed" from="ContinueButton" to="." method="continueButton"]
+[connection signal="pressed" from="SaveButton" to="." method="saveButton"]
+[connection signal="pressed" from="OptionsButton" to="." method="optionsButton"]
+[connection signal="pressed" from="quitButton" to="." method="quitButton"]

@@ -2,10 +2,10 @@ using Godot;
 using System;
 using System.Collections.Generic;
 
-public partial class Main : Node2D
+public partial class Simulation : Node2D
 {
 	Random rng = new Random(DateTime.Now.Millisecond);
-	PackedScene WorkerAnt = GD.Load<PackedScene>("res://workerAnt.tscn");
+	PackedScene WorkerAnt = GD.Load<PackedScene>("res://Simulation/ants/workerAnt.tscn");
 	static List<WorkerAnt> ants = [];
 	int startAntCount = 3;
 	int random = 0;

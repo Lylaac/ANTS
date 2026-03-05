@@ -1,0 +1,67 @@
+[gd_scene load_steps=14 format=3 uid="uid://cgoj7k6jf224d"]
+
+[ext_resource type="Script" uid="uid://drqwa2042ly1y" path="res://menus/saveSimMenu/SaveSimulationMenu.cs" id="1_o4sfn"]
+[ext_resource type="Texture2D" uid="uid://dk2v0hywq0bcv" path="res://textures/menuscreens/Slide5.PNG" id="1_ticsd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_o4sfn"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_on0j5"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6hkjo"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_k40rs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_deviv"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_37vae"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_12gem"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_l0mle"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_feyck"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_whr8u"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_neccs"]
+
+[node name="SaveSimulationMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_o4sfn")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_top = 0
+limit_right = 1920
+limit_bottom = 1080
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("1_ticsd")
+
+[node name="BackButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1044.0
+offset_top = 875.0
+offset_right = 1519.0
+offset_bottom = 981.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_o4sfn")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_on0j5")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_6hkjo")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_k40rs")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_deviv")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_37vae")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_12gem")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_l0mle")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_feyck")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_whr8u")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_neccs")
+
+[connection signal="pressed" from="BackButton" to="." method="backButton"]

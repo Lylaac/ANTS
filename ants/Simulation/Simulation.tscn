@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3 uid="uid://d30rksano2g4v"]
+
+[ext_resource type="Script" uid="uid://dqlk31inlaufw" path="res://Simulation/Simulation.cs" id="1_lfd1m"]
+[ext_resource type="Texture2D" uid="uid://ciognx5dvht2d" path="res://textures/tempgroundtexture.png" id="2_uobxk"]
+[ext_resource type="Script" uid="uid://bc1cw2xgb1rpt" path="res://Simulation/terrain/GroundMesh.cs" id="3_mpm82"]
+[ext_resource type="Script" uid="uid://2mq7xfcd4260" path="res://Simulation/camera/Camera.cs" id="4_vtp77"]
+[ext_resource type="PackedScene" uid="uid://k0a8743idroy" path="res://menus/pauseMenu/pauseMenu.tscn" id="5_wopwp"]
+
+[node name="Simulation" type="Node2D"]
+script = ExtResource("1_lfd1m")
+
+[node name="GroundMesh" type="MeshInstance2D" parent="."]
+texture = ExtResource("2_uobxk")
+script = ExtResource("3_mpm82")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(951, 540)
+limit_left = 0
+limit_top = 0
+limit_right = 1920
+limit_bottom = 1080
+script = ExtResource("4_vtp77")
+
+[node name="Timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="TextEdit" type="TextEdit" parent="."]
+offset_right = 253.0
+offset_bottom = 122.0
+text = "Left Click To Add Terrain
+Right Click To Remove Terrain
+Scroll to Zoom
+Arrow Keys to pan Camera"
+
+[node name="pauseMenu" parent="." instance=ExtResource("5_wopwp")]
+visible = false
+
+[connection signal="timeout" from="Timer" to="." method="antRandomiser"]

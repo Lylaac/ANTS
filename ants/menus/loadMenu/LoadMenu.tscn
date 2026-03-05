@@ -1,0 +1,78 @@
+[gd_scene load_steps=15 format=3 uid="uid://btl3keyhnm78f"]
+
+[ext_resource type="Texture2D" uid="uid://lyw7imhy6hle" path="res://textures/menuscreens/Slide4.PNG" id="1_7uqn2"]
+[ext_resource type="Script" uid="uid://3gga6i7gptm1" path="res://menus/loadMenu/LoadMenu.cs" id="1_qadtk"]
+[ext_resource type="Texture2D" uid="uid://tb13yb2724cw" path="res://textures/menuscreens/buttons/quitButton.PNG" id="3_oac3m"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_qadtk"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_nwn7t"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rmqiu"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_b5yh1"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_162ej"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_wplb3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5jalq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_baai0"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6s5xs"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btxsx"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_poite"]
+
+[node name="LoadMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_qadtk")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+texture = ExtResource("1_7uqn2")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_left = 0
+limit_top = 0
+limit_right = 1920
+limit_bottom = 1080
+
+[node name="LoadButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 441.0
+offset_top = 875.0
+offset_right = 916.0
+offset_bottom = 981.0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_qadtk")
+theme_override_styles/normal_mirrored = SubResource("StyleBoxEmpty_nwn7t")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_rmqiu")
+theme_override_styles/pressed_mirrored = SubResource("StyleBoxEmpty_b5yh1")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_162ej")
+theme_override_styles/hover_mirrored = SubResource("StyleBoxEmpty_wplb3")
+theme_override_styles/hover_pressed = SubResource("StyleBoxEmpty_5jalq")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxEmpty_baai0")
+theme_override_styles/disabled = SubResource("StyleBoxEmpty_6s5xs")
+theme_override_styles/disabled_mirrored = SubResource("StyleBoxEmpty_btxsx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_poite")
+
+[node name="TextureButton" type="TextureButton" parent="."]
+layout_mode = 0
+offset_left = 1023.00006
+offset_top = 871.00006
+offset_right = 2143.0
+offset_bottom = 1122.0
+scale = Vector2(0.45, 0.45)
+texture_normal = ExtResource("3_oac3m")
+
+[connection signal="pressed" from="LoadButton" to="." method="loadButton"]
+[connection signal="pressed" from="TextureButton" to="." method="quitButton"]
