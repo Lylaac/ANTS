@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c5gaqtulmtge2"]
 
-[ext_resource type="Script" uid="uid://comuqovrqfk0b" path="res://WorkerAnt.cs" id="1_caqgl"]
+[ext_resource type="Script" uid="uid://comuqovrqfk0b" path="res://Simulation/ants/WorkerAnt.cs" id="1_caqgl"]
 [ext_resource type="Texture2D" uid="uid://cfa6r5bqr26e7" path="res://textures/ANT.png" id="2_caqgl"]
 
 [node name="WorkerAnt" type="CharacterBody2D"]

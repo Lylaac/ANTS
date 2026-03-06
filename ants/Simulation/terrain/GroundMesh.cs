@@ -22,7 +22,7 @@ public partial class GroundMesh : MeshInstance2D
 	public override void _Process(double delta)
     {
 
-        if (Input.IsActionPressed("debug_add_terrain"))
+        if (Input.IsActionPressed("debug_add_terrain") && !Input.IsActionPressed("ant_select"))
         {
             MarchingSquares.edit(GetGlobalMousePosition(), false);
             MarchingSquares.edited = true;

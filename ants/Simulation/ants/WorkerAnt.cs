@@ -24,6 +24,7 @@ public partial class WorkerAnt : CharacterBody2D
 	public int food = 10; // these are our needs, they slowly go down over time
 	public int water = 10;
 	public int sleep = 10; 
+	bool selected = false;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -41,6 +42,18 @@ public partial class WorkerAnt : CharacterBody2D
 	// Called every frame. 'delta' is the elapsed time since the previous frame.
 	public override void _Process(double delta)
 	{
+		if (Input.IsActionJustPressed("ant_select")) // if alt and leftclick are pressed
+		{
+			if (!selected && comparePositionXY(GetGlobalMousePosition(), 20)) // if we aren't selected and are clicked on, then become selected
+			{
+				selected = true;
+			}
+			else if (selected) // if we are selected, navigate to where we want to go and then become unselected
+			{
+				path = Ant.pathFind(Position, GetGlobalMousePosition(), true);
+				selected = false;
+			}
+		}
 		underground = Geometry2D.IsPointInPolygon(Position, MarchingSquares.undergroundBoundaries.ToArray()); // check if we are "underground" or below the surface, as this means we have a back wall to hold onto for climbing
 		if (!underground) // if we aren't underground then there's nothing to climb on so we do fall
 		{
@@ -265,7 +278,7 @@ public partial class WorkerAnt : CharacterBody2D
 		if (Ant.mainCorridorStart == Vector2.Zero && (Ant.mainCorridorBuilder == uniqueID || Ant.mainCorridorBuilder == -1)) // if the main corridor does not exist and has no builder or if this ant is the assigned builder
 		{
 			Ant.mainCorridorBuilder = uniqueID; // set the builder id of the main corridor to be our id
-			if (comparePositionX(DisplayServer.WindowGetSize()/2)) // if we are close enough to the center of the screen we can begin digging
+			if (comparePositionX(DisplayServer.WindowGetSize()/2, 5)) // if we are close enough to the center of the screen we can begin digging
 			{
 				path = Ant.pathFind(Position, Position + new Vector2(500, 500), true); // dig down in a 45 degree angle
 				Ant.mainCorridorStart = Position; // start is where we are right now
@@ -281,7 +294,7 @@ public partial class WorkerAnt : CharacterBody2D
 		{
 			Ant.foodRoomBuilder = uniqueID; // set the builder id of the food room to be our id
 			Vector2 offset = new Vector2(Ant.foodRoomStart.X - 30, Ant.foodRoomStart.Y); // this is an offset of how far from the corridor we should go out to fully build the room
-			if (comparePositionXY(Ant.foodRoomStart)) // if we are at the start of the room
+			if (comparePositionXY(Ant.foodRoomStart, 5)) // if we are at the start of the room
 			{
 				path = Ant.pathFind(Position, offset, true); // start to build it, ignoring the cost of digging
 				Ant.foodRoomBuilder = -2; // set builder id to -2 as this no longer needs to be built
@@ -295,7 +308,7 @@ public partial class WorkerAnt : CharacterBody2D
 		{
 			Ant.sleepRoomBuilder = uniqueID;
 			Vector2 offset = new Vector2(Ant.sleepRoomStart.X - 30, Ant.sleepRoomStart.Y);
-			if (comparePositionXY(Ant.sleepRoomStart))
+			if (comparePositionXY(Ant.sleepRoomStart, 5))
 			{
 				path = Ant.pathFind(Position, offset, true);
 				Ant.sleepRoomBuilder = -2;
@@ -309,7 +322,7 @@ public partial class WorkerAnt : CharacterBody2D
 		{
 			Ant.foodRoomBuilder = uniqueID;
 			Vector2 offset = new Vector2(Ant.foodRoomStart.X - 30, Ant.foodRoomStart.Y);
-			if (comparePositionXY(Ant.foodRoomStart))
+			if (comparePositionXY(Ant.foodRoomStart, 5))
 			{
 				path = Ant.pathFind(Position, offset, true);
 				Ant.throneRoomBuilder = -2;
@@ -321,9 +334,9 @@ public partial class WorkerAnt : CharacterBody2D
 		}
 		
 	}
-	public bool comparePositionXY(Vector2 point) //compares x and y distances to see if we are close enough to where we need to be (within 5 pixels)
+	public bool comparePositionXY(Vector2 point, int margin) //compares x and y distances to see if we are close enough to where we need to be (within 5 pixels)
 	{
-		if (Math.Abs(Position.X - point.X) <= 5 && Math.Abs(Position.Y - point.Y) <= 5)
+		if (Math.Abs(Position.X - point.X) <= margin && Math.Abs(Position.Y - point.Y) <= margin)
 		{
 			return true;
 		}
@@ -332,9 +345,9 @@ public partial class WorkerAnt : CharacterBody2D
 			return false;
 		}
 	}
-	private bool comparePositionX(Vector2 point) // compare only the x to see if we are in the right place horizontally, ignoring vertical placement
+	private bool comparePositionX(Vector2 point, int margin) // compare only the x to see if we are in the right place horizontally, ignoring vertical placement
 	{
-		if (Math.Abs(Position.X - point.X) <= 5)
+		if (Math.Abs(Position.X - point.X) <= margin)
 		{
 			return true;
 		}
